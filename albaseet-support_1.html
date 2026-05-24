@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مركز دعم البسيط - بحث الفيديوهات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1E2B6B;
+  --navy-light: #2D3B7A;
+  --navy-dark: #151f50;
+  --accent: #4A90D9;
+  --accent2: #E8EBF7;
+  --bg: #F4F6FC;
+  --white: #ffffff;
+  --text: #1a1f36;
+  --text-sub: #5a6080;
+  --border: #DDE1F0;
+  --green: #1aaa72;
+  --radius: 14px;
+  --shadow: 0 2px 16px rgba(30,43,107,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; direction: rtl; }
+
+.header {
+  background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-light) 100%);
+  padding: 20px 20px 28px; position: relative; overflow: hidden;
+}
+.header::before { content:''; position:absolute; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,0.04); top:-100px; left:-80px; }
+.header::after { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.03); bottom:-60px; right:-40px; }
+.header-inner { position:relative; z-index:1; }
+.logo-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:8px 12px; margin-bottom:14px; }
+.logo-dot { width:10px; height:10px; background:#4fd1a5; border-radius:50%; }
+.logo-text { color:white; font-size:13px; font-weight:600; }
+.header h1 { color:white; font-size:22px; font-weight:800; line-height:1.3; margin-bottom:6px; }
+.header p { color:rgba(255,255,255,0.65); font-size:13px; }
+.video-count-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.15); border-radius:20px; padding:5px 12px; color:white; font-size:12px; font-weight:600; margin-top:12px; }
+
+.search-wrap { padding:16px; }
+.search-box { background:white; border-radius:var(--radius); box-shadow:var(--shadow); padding:4px; display:flex; align-items:center; border:1.5px solid transparent; transition:border-color 0.2s; }
+.search-box:focus-within { border-color:var(--accent); }
+.search-icon { padding:0 12px; color:var(--text-sub); font-size:20px; }
+.search-box input { flex:1; border:none; outline:none; font-family:'Cairo',sans-serif; font-size:15px; color:var(--text); background:transparent; padding:12px 0; direction:rtl; }
+.search-box input::placeholder { color:#aab0cc; }
+.clear-btn { background:var(--bg); border:none; cursor:pointer; width:32px; height:32px; border-radius:8px; display:none; align-items:center; justify-content:center; color:var(--text-sub); font-size:16px; margin-left:4px; }
+.clear-btn.show { display:flex; }
+
+.tags-wrap { padding:0 16px 12px; display:flex; gap:8px; flex-wrap:wrap; }
+.tag { padding:6px 14px; border-radius:20px; font-size:12px; font-family:'Cairo',sans-serif; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:white; color:var(--text-sub); transition:all 0.15s; white-space:nowrap; }
+.tag:hover { border-color:var(--navy-light); color:var(--navy-light); }
+.tag.active { background:var(--navy-light); color:white; border-color:var(--navy-light); }
+
+.results-info { padding:0 16px 10px; font-size:12px; color:var(--text-sub); font-weight:500; }
+.cards { padding:0 16px 100px; display:flex; flex-direction:column; gap:12px; }
+
+.card { background:white; border-radius:var(--radius); box-shadow:0 1px 8px rgba(30,43,107,0.07); border:1px solid var(--border); overflow:hidden; transition:box-shadow 0.2s, transform 0.2s; animation:fadeUp 0.3s ease both; }
+.card:hover { box-shadow:0 4px 20px rgba(30,43,107,0.13); transform:translateY(-1px); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.card-top { display:flex; gap:12px; padding:14px; }
+.thumb { width:110px; height:68px; border-radius:8px; flex-shrink:0; position:relative; overflow:hidden; cursor:pointer; background:#1a1f36; }
+.thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.thumb-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+.thumb:hover .thumb-overlay { background:rgba(0,0,0,0.15); }
+.play-btn { width:36px; height:36px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+.play-btn::after { content:'▶'; font-size:13px; color:var(--navy); margin-right:-2px; }
+
+.card-info { flex:1; min-width:0; }
+.card-title { font-size:14px; font-weight:700; color:var(--text); line-height:1.4; margin-bottom:5px; }
+.card-desc { font-size:12px; color:var(--text-sub); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.card-footer { border-top:1px solid var(--border); padding:10px 14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.badge { font-size:11px; font-weight:600; font-family:'Cairo',sans-serif; padding:3px 10px; border-radius:10px; background:var(--accent2); color:var(--navy-light); }
+.actions { margin-right:auto; display:flex; gap:8px; }
+.btn { font-family:'Cairo',sans-serif; font-size:12px; font-weight:700; padding:7px 14px; border-radius:8px; cursor:pointer; border:none; display:flex; align-items:center; gap:5px; transition:all 0.15s; white-space:nowrap; text-decoration:none; }
+.btn-copy { background:var(--accent2); color:var(--navy-light); border:1.5px solid var(--border); }
+.btn-copy:hover { background:var(--navy-light); color:white; border-color:var(--navy-light); }
+.btn-copy.copied { background:var(--green); color:white; border-color:var(--green); }
+.btn-open { background:var(--navy-light); color:white; }
+.btn-open:hover { background:var(--navy-dark); }
+
+/* ── VIDEO MODAL ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; display:none; align-items:center; justify-content:center; padding:16px; }
+.modal-overlay.show { display:flex; }
+.modal-box { background:#000; border-radius:12px; overflow:hidden; width:100%; max-width:700px; position:relative; }
+.modal-close { position:absolute; top:10px; left:10px; z-index:10; background:rgba(255,255,255,0.15); border:none; color:white; width:34px; height:34px; border-radius:50%; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.modal-close:hover { background:rgba(255,255,255,0.3); }
+.modal-title { background:var(--navy-dark); color:white; padding:12px 50px 12px 14px; font-family:'Cairo',sans-serif; font-size:13px; font-weight:700; }
+.video-frame { position:relative; padding-bottom:56.25%; height:0; }
+.video-frame iframe { position:absolute; inset:0; width:100%; height:100%; border:none; }
+
+.empty { text-align:center; padding:48px 20px; color:var(--text-sub); }
+.empty-icon { font-size:48px; margin-bottom:12px; }
+.empty h3 { font-size:16px; font-weight:700; margin-bottom:6px; color:var(--text); }
+
+.loading { text-align:center; padding:60px 20px; color:var(--text-sub); font-size:14px; }
+.spinner { width:36px; height:36px; border-radius:50%; border:3px solid var(--border); border-top-color:var(--navy-light); animation:spin 0.7s linear infinite; margin:0 auto 16px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+.footer { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid var(--border); padding:10px 16px; display:flex; align-items:center; justify-content:space-between; z-index:10; }
+.footer-text { font-size:11px; color:var(--text-sub); font-weight:500; }
+.footer-logo { font-size:12px; font-weight:800; color:var(--navy-light); }
+
+.toast { position:fixed; bottom:70px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--navy-dark); color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; font-family:'Cairo',sans-serif; opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; z-index:100; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-badge">
+      <div class="logo-dot"></div>
+      <span class="logo-text">مركز الدعم الفني</span>
+    </div>
+    <h1>🎬 مكتبة شروحات البسيط</h1>
+    <p>ابحث عن الموضوع وأرسل الرابط للعميل مباشرة</p>
+    <div class="video-count-badge">
+      <span>📹</span>
+      <span id="totalCount">...</span>
+      <span>فيديو متاح</span>
+    </div>
+  </div>
+</div>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="ابحث: كشف حساب، عملات، مشتريات..." oninput="onSearch()" />
+    <button class="clear-btn" id="clearBtn" onclick="clearSearch()">✕</button>
+  </div>
+</div>
+
+<div class="tags-wrap" id="tagsWrap"></div>
+<div class="results-info" id="resultsInfo"></div>
+<div class="cards" id="cardsContainer">
+  <div class="loading"><div class="spinner"></div>جاري تحميل الفيديوهات...</div>
+</div>
+
+<div class="footer">
+  <span class="footer-text">للموظفين فقط · البسيط سوفت</span>
+  <span class="footer-logo">⚡ البسيط</span>
+</div>
+
+<!-- VIDEO MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle"></div>
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="video-frame">
+      <iframe id="videoFrame" allowfullscreen allow="autoplay"></iframe>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5Fs5SIDcgaZN_nF6k5o7H1zY2hhGKyil9h3qcpzhsyGBtE1VjuRGvk0Tw412yRNNTo9_zoU815YBL/pub?gid=0&single=true&output=csv';
+
+let allVideos = [];
+let activeTag = null;
+
+function getYoutubeId(url) {
+  const m = url.match(/(?:youtu\.be\/|v=|\/v\/|embed\/|shorts\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function getThumbnail(url) {
+  const id = getYoutubeId(url);
+  return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : '';
+}
+
+function getEmbedUrl(url) {
+  const id = getYoutubeId(url);
+  return id ? `https://www.youtube.com/embed/${id}?autoplay=1` : url;
+}
+
+async function loadVideos() {
+  try {
+    const res = await fetch(SHEET_URL);
+    const text = await res.text();
+    allVideos = parseCSV(text);
+  } catch(e) {
+    document.getElementById('cardsContainer').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>تعذر تحميل البيانات</h3><p>تحقق من الاتصال بالإنترنت</p></div>`;
+    return;
+  }
+  document.getElementById('totalCount').textContent = allVideos.length;
+  renderTags();
+  renderCards(allVideos);
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n').slice(1);
+  return lines.map(line => {
+    // handle quoted CSV fields
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') { inQ = !inQ; }
+      else if (line[i] === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += line[i]; }
+    }
+    cols.push(cur.trim());
+    return {
+      title: cols[0] || '',
+      desc: cols[1] || '',
+      tags: (cols[2] || '').split('|').map(t => t.trim()).filter(Boolean),
+      keywords: cols[3] || '',
+      link: cols[4] || ''
+    };
+  }).filter(v => v.title && v.link);
+}
+
+function renderTags() {
+  const allTags = [...new Set(allVideos.flatMap(v => v.tags))].filter(Boolean);
+  document.getElementById('tagsWrap').innerHTML = allTags.map(t =>
+    `<span class="tag${activeTag===t?' active':''}" onclick="toggleTag('${t}')">${t}</span>`
+  ).join('');
+}
+
+function toggleTag(t) {
+  activeTag = activeTag === t ? null : t;
+  renderTags(); doSearch();
+}
+
+function onSearch() {
+  const q = document.getElementById('searchInput').value;
+  document.getElementById('clearBtn').classList.toggle('show', q.length > 0);
+  doSearch();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearBtn').classList.remove('show');
+  doSearch();
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let res = allVideos;
+  if (activeTag) res = res.filter(v => v.tags.includes(activeTag));
+  if (q) res = res.filter(v =>
+    v.title.toLowerCase().includes(q) ||
+    v.desc.toLowerCase().includes(q) ||
+    v.keywords.toLowerCase().includes(q) ||
+    v.tags.some(t => t.includes(q))
+  );
+  const info = document.getElementById('resultsInfo');
+  info.textContent = (q || activeTag)
+    ? `${res.length} نتيجة من أصل ${allVideos.length}`
+    : `${allVideos.length} فيديو متاح`;
+  renderCards(res);
+}
+
+function renderCards(videos) {
+  const el = document.getElementById('cardsContainer');
+  if (!videos.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🎬</div><h3>ما في نتيجة</h3><p>جرّب كلمة بحث ثانية</p></div>`;
+    return;
+  }
+  el.innerHTML = videos.map((v, i) => {
+    const thumb = getThumbnail(v.link);
+    const tagsHtml = v.tags.map(t => `<span class="badge">${t}</span>`).join('');
+    const safeTitle = v.title.replace(/'/g, "\\'");
+    const safeLink = v.link.replace(/'/g, "\\'");
+    return `
+    <div class="card" style="animation-delay:${i*0.05}s">
+      <div class="card-top">
+        <div class="thumb" onclick="openVideo('${safeLink}','${safeTitle}')">
+          ${thumb ? `<img src="${thumb}" alt="${v.title}" loading="lazy">` : ''}
+          <div class="thumb-overlay"><div class="play-btn"></div></div>
+        </div>
+        <div class="card-info">
+          <div class="card-title">${v.title}</div>
+          <div class="card-desc">${v.desc}</div>
+        </div>
+      </div>
+      <div class="card-footer">
+        ${tagsHtml}
+        <div class="actions">
+          <button class="btn btn-copy" onclick="copyLink(this,'${safeLink}','${safeTitle}')">📋 نسخ الرابط</button>
+          <a class="btn btn-open" href="${v.link}" target="_blank">↗ يوتيوب</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openVideo(url, title) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('videoFrame').src = getEmbedUrl(url);
+  document.getElementById('modalOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+}
+
+function closeModalDirect() {
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.getElementById('videoFrame').src = '';
+  document.body.style.overflow = '';
+}
+
+function copyLink(btn, url, title) {
+  navigator.clipboard.writeText(`📹 ${title}\n${url}`).then(() => {
+    btn.classList.add('copied');
+    btn.textContent = '✓ تم النسخ';
+    showToast('✓ الرابط جاهز للإرسال!');
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '📋 نسخ الرابط'; }, 2500);
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
+loadVideos();
+</script>
+</body>
+</html>
