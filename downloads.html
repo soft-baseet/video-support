@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مركز التحميلات - البسيط سوفت</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #1E2B6B; --navy-light: #2D3B7A; --navy-dark: #151f50;
+  --accent: #4A90D9; --accent2: #E8EBF7; --bg: #F4F6FC;
+  --text: #1a1f36; --text-sub: #5a6080; --border: #DDE1F0;
+  --green: #1aaa72; --orange: #E8830A; --red: #D63B3B;
+  --purple: #6B4FBB; --teal: #0E8A7A; --radius: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; direction: rtl; }
+
+/* ── NAV ── */
+.nav { background: var(--navy-dark); padding: 0 16px; display: flex; align-items: center; gap: 8px; overflow-x: auto; }
+.nav a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 600; font-family: 'Cairo', sans-serif; padding: 14px 16px; display: flex; align-items: center; gap: 6px; white-space: nowrap; border-bottom: 2.5px solid transparent; transition: all 0.15s; }
+.nav a:hover { color: white; }
+.nav a.active { color: white; border-bottom-color: #4fd1a5; }
+
+/* ── HEADER ── */
+.header { background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-light) 100%); padding: 20px 20px 28px; position: relative; overflow: hidden; }
+.header::before { content:''; position:absolute; width:300px; height:300px; border-radius:50%; background:rgba(255,255,255,0.04); top:-100px; left:-80px; }
+.header-inner { position:relative; z-index:1; }
+.logo-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.2); border-radius:10px; padding:8px 12px; margin-bottom:14px; }
+.logo-dot { width:10px; height:10px; background:#4fd1a5; border-radius:50%; }
+.logo-text { color:white; font-size:13px; font-weight:600; }
+.header h1 { color:white; font-size:22px; font-weight:800; line-height:1.3; margin-bottom:6px; }
+.header p { color:rgba(255,255,255,0.65); font-size:13px; }
+.file-count-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.15); border-radius:20px; padding:5px 12px; color:white; font-size:12px; font-weight:600; margin-top:12px; }
+
+/* ── SEARCH ── */
+.search-wrap { padding:16px; }
+.search-box { background:white; border-radius:var(--radius); box-shadow:0 2px 16px rgba(30,43,107,0.10); padding:4px; display:flex; align-items:center; border:1.5px solid transparent; transition:border-color 0.2s; }
+.search-box:focus-within { border-color:var(--accent); }
+.search-icon { padding:0 12px; color:var(--text-sub); font-size:20px; }
+.search-box input { flex:1; border:none; outline:none; font-family:'Cairo',sans-serif; font-size:15px; color:var(--text); background:transparent; padding:12px 0; direction:rtl; }
+.search-box input::placeholder { color:#aab0cc; }
+.clear-btn { background:var(--bg); border:none; cursor:pointer; width:32px; height:32px; border-radius:8px; display:none; align-items:center; justify-content:center; color:var(--text-sub); font-size:16px; margin-left:4px; }
+.clear-btn.show { display:flex; }
+
+/* ── FILTERS ── */
+.filters-wrap { padding:0 16px 12px; display:flex; gap:8px; flex-wrap:wrap; }
+.tag { padding:6px 14px; border-radius:20px; font-size:12px; font-family:'Cairo',sans-serif; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:white; color:var(--text-sub); transition:all 0.15s; white-space:nowrap; }
+.tag:hover { border-color:var(--navy-light); color:var(--navy-light); }
+.tag.active { background:var(--navy-light); color:white; border-color:var(--navy-light); }
+
+.results-info { padding:0 16px 10px; font-size:12px; color:var(--text-sub); font-weight:500; }
+.cards { padding:0 16px 100px; display:flex; flex-direction:column; gap:10px; }
+
+/* ── FILE CARD ── */
+.card { background:white; border-radius:var(--radius); box-shadow:0 1px 8px rgba(30,43,107,0.07); border:1px solid var(--border); overflow:hidden; transition:box-shadow 0.2s, transform 0.15s; animation:fadeUp 0.3s ease both; display:flex; align-items:center; gap:0; }
+.card:hover { box-shadow:0 4px 20px rgba(30,43,107,0.13); transform:translateY(-1px); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.file-icon { width:64px; min-width:64px; height:64px; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+
+.card-body { flex:1; min-width:0; padding:12px 12px 12px 0; }
+.card-title { font-size:14px; font-weight:700; color:var(--text); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-desc { font-size:12px; color:var(--text-sub); line-height:1.4; margin-bottom:8px; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+.card-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.badge { font-size:11px; font-weight:700; font-family:'Cairo',sans-serif; padding:3px 10px; border-radius:10px; }
+
+/* type colors */
+.badge-driver { background:#FFF3E0; color:#E65100; }
+.badge-zip    { background:#E8F5E9; color:#2E7D32; }
+.badge-exe    { background:#E3F2FD; color:#1565C0; }
+.badge-pdf    { background:#FCE4EC; color:#C62828; }
+.badge-txt    { background:#F3E5F5; color:#6A1B9A; }
+.badge-other  { background:var(--accent2); color:var(--navy-light); }
+
+/* icon bg colors */
+.icon-driver { background:#FFF3E0; }
+.icon-zip    { background:#E8F5E9; }
+.icon-exe    { background:#E3F2FD; }
+.icon-pdf    { background:#FCE4EC; }
+.icon-txt    { background:#F3E5F5; }
+.icon-other  { background:var(--accent2); }
+
+.download-btn { margin-left:12px; margin-right:12px; flex-shrink:0; font-family:'Cairo',sans-serif; font-size:12px; font-weight:700; padding:8px 14px; border-radius:10px; cursor:pointer; border:none; background:var(--navy-light); color:white; display:flex; align-items:center; gap:5px; text-decoration:none; transition:background 0.15s; white-space:nowrap; }
+.download-btn:hover { background:var(--navy-dark); }
+
+.empty { text-align:center; padding:48px 20px; color:var(--text-sub); }
+.empty-icon { font-size:48px; margin-bottom:12px; }
+.empty h3 { font-size:16px; font-weight:700; margin-bottom:6px; color:var(--text); }
+
+.loading { text-align:center; padding:60px 20px; color:var(--text-sub); font-size:14px; }
+.spinner { width:36px; height:36px; border-radius:50%; border:3px solid var(--border); border-top-color:var(--navy-light); animation:spin 0.7s linear infinite; margin:0 auto 16px; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+.footer { position:fixed; bottom:0; left:0; right:0; background:white; border-top:1px solid var(--border); padding:10px 16px; display:flex; align-items:center; justify-content:space-between; z-index:10; }
+.footer-text { font-size:11px; color:var(--text-sub); font-weight:500; }
+.footer-logo { font-size:12px; font-weight:800; color:var(--navy-light); }
+
+.toast { position:fixed; bottom:70px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--navy-dark); color:white; padding:10px 20px; border-radius:20px; font-size:13px; font-weight:600; font-family:'Cairo',sans-serif; opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; z-index:100; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="albaseet-support_2.html">🎬 مكتبة الفيديوهات</a>
+  <a href="downloads.html" class="active">📁 التعاريف والبرامج</a>
+</nav>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-badge">
+      <div class="logo-dot"></div>
+      <span class="logo-text">مركز التحميلات</span>
+    </div>
+    <h1>📁 التعاريف والبرامج</h1>
+    <p>حمّل التعاريف والبرامج المطلوبة مباشرة</p>
+    <div class="file-count-badge">
+      <span>📦</span>
+      <span id="totalCount">...</span>
+      <span>ملف متاح</span>
+    </div>
+  </div>
+</div>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="ابحث: طابعة، درايفر، إعداد..." oninput="onSearch()" />
+    <button class="clear-btn" id="clearBtn" onclick="clearSearch()">✕</button>
+  </div>
+</div>
+
+<div class="filters-wrap" id="filtersWrap"></div>
+<div class="results-info" id="resultsInfo"></div>
+<div class="cards" id="cardsContainer">
+  <div class="loading"><div class="spinner"></div>جاري تحميل الملفات...</div>
+</div>
+
+<div class="footer">
+  <span class="footer-text">للموظفين فقط · البسيط سوفت</span>
+  <span class="footer-logo">⚡ البسيط</span>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ5Fs5SIDcgaZN_nF6k5o7H1zY2hhGKyil9h3qcpzhsyGBtE1VjuRGvk0Tw412yRNNTo9_zoU815YBL/pub?gid=1626020716&single=true&output=csv';
+
+const TYPE_CONFIG = {
+  driver: { icon: '🖨️', label: 'درايفر',  badge: 'badge-driver', bg: 'icon-driver' },
+  zip:    { icon: '🗜️', label: 'مضغوط',   badge: 'badge-zip',    bg: 'icon-zip'    },
+  exe:    { icon: '⚙️', label: 'برنامج',   badge: 'badge-exe',    bg: 'icon-exe'    },
+  pdf:    { icon: '📄', label: 'PDF',       badge: 'badge-pdf',    bg: 'icon-pdf'    },
+  txt:    { icon: '📝', label: 'نصي',       badge: 'badge-txt',    bg: 'icon-txt'    },
+  other:  { icon: '📦', label: 'ملف',       badge: 'badge-other',  bg: 'icon-other'  },
+};
+
+function getType(t) { return TYPE_CONFIG[t?.toLowerCase()] || TYPE_CONFIG.other; }
+
+// تحويل رابط Drive لرابط تحميل مباشر
+function getDriveDownloadLink(url) {
+  const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+  // إذا كان رابط مجلد أو رابط مختلف ارجعه كما هو
+  return url;
+}
+
+let allFiles = [];
+let activeType = null;
+
+async function loadFiles() {
+  const CACHE_KEY = 'albaseet_downloads';
+  const CACHE_TIME = 'albaseet_downloads_time';
+  const CACHE_MINUTES = 10;
+
+  const cached = localStorage.getItem(CACHE_KEY);
+  const cachedTime = localStorage.getItem(CACHE_TIME);
+  const isFresh = cachedTime && (Date.now() - parseInt(cachedTime)) < CACHE_MINUTES * 60 * 1000;
+
+  if (cached) {
+    allFiles = JSON.parse(cached);
+    document.getElementById('totalCount').textContent = allFiles.length;
+    renderFilters(); renderCards(allFiles);
+  }
+
+  if (!isFresh) {
+    try {
+      const res = await fetch(SHEET_URL);
+      const text = await res.text();
+      allFiles = parseCSV(text);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(allFiles));
+      localStorage.setItem(CACHE_TIME, Date.now().toString());
+      document.getElementById('totalCount').textContent = allFiles.length;
+      renderFilters(); renderCards(allFiles);
+    } catch(e) {
+      if (!cached) {
+        document.getElementById('cardsContainer').innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><h3>تعذر تحميل البيانات</h3><p>تحقق من الاتصال بالإنترنت</p></div>`;
+      }
+    }
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n').slice(1);
+  return lines.map(line => {
+    const cols = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') { inQ = !inQ; }
+      else if (line[i] === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += line[i]; }
+    }
+    cols.push(cur.trim());
+    return { name: cols[0]||'', desc: cols[1]||'', type: (cols[2]||'other').toLowerCase(), keywords: cols[3]||'', link: cols[4]||'' };
+  }).filter(f => f.name && f.link);
+}
+
+function renderFilters() {
+  const types = [...new Set(allFiles.map(f => f.type))].filter(Boolean);
+  document.getElementById('filtersWrap').innerHTML = types.map(t => {
+    const cfg = getType(t);
+    return `<span class="tag${activeType===t?' active':''}" onclick="toggleType('${t}')">${cfg.icon} ${cfg.label}</span>`;
+  }).join('');
+}
+
+function toggleType(t) {
+  activeType = activeType === t ? null : t;
+  renderFilters(); doSearch();
+}
+
+function onSearch() {
+  const q = document.getElementById('searchInput').value;
+  document.getElementById('clearBtn').classList.toggle('show', q.length > 0);
+  doSearch();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearBtn').classList.remove('show');
+  doSearch();
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let res = allFiles;
+  if (activeType) res = res.filter(f => f.type === activeType);
+  if (q) res = res.filter(f =>
+    f.name.toLowerCase().includes(q) ||
+    f.desc.toLowerCase().includes(q) ||
+    f.keywords.toLowerCase().includes(q)
+  );
+  const info = document.getElementById('resultsInfo');
+  info.textContent = (q || activeType) ? `${res.length} نتيجة من أصل ${allFiles.length}` : `${allFiles.length} ملف متاح`;
+  renderCards(res);
+}
+
+function renderCards(files) {
+  const el = document.getElementById('cardsContainer');
+  if (!files.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><h3>ما في نتيجة</h3><p>جرّب كلمة بحث ثانية</p></div>`;
+    return;
+  }
+  el.innerHTML = files.map((f, i) => {
+    const cfg = getType(f.type);
+    const dlLink = getDriveDownloadLink(f.link);
+    return `
+    <div class="card" style="animation-delay:${i*0.04}s">
+      <div class="file-icon ${cfg.bg}">${cfg.icon}</div>
+      <div class="card-body">
+        <div class="card-title">${f.name}</div>
+        ${f.desc ? `<div class="card-desc">${f.desc}</div>` : ''}
+        <div class="card-meta">
+          <span class="badge ${cfg.badge}">${cfg.label}</span>
+        </div>
+      </div>
+      <a class="download-btn" href="${dlLink}" target="_blank">
+        ⬇️ تحميل
+      </a>
+    </div>`;
+  }).join('');
+}
+
+loadFiles();
+</script>
+</body>
+</html>
